@@ -75,7 +75,7 @@ float perlin2d(float x, float y, float freq, int depth)
 
 // end perlin
 
-struct DiscretePoint
+struct Particle
 {
     Color color;
     int height;
@@ -85,7 +85,7 @@ struct DiscretePoint
 
 struct Plita
 {
-    struct DiscretePoint points[50][50];
+    struct Particle points[WWIDTH * WHEIGHT];
     char name[10];
 };
 
@@ -93,17 +93,20 @@ int main(void)
 {
 
     // Блок инициализации симуляции
-    struct DiscretePoint simulArray[WWIDTH][WHEIGHT] = {};
-    struct DiscretePoint simulArrayMass[WWIDTH][WHEIGHT][10] = {};
+    struct Plita simulArray = {};
+
+    struct Plita simulArrayMass[5] = {{}, {}, {}, {}, {}};
+    int i = 0;
 
     for (int x = 0; x < WWIDTH; x++)
     {
         for (int y = 0; y < WHEIGHT; y++)
         {
-            simulArray[x][y].x = x;
-            simulArray[x][y].y = y;
-            simulArray[x][y].color = LIGHTGRAY;
-            simulArray[x][y].color.r = perlin2d(x, y, 0.01, 4) * 255;
+            i++;
+            simulArray.points[i].x = x;
+            simulArray.points[i].y = y;
+            simulArray.points[i].color = LIGHTGRAY;
+            simulArray.points[i].color.r = perlin2d(x, y, 0.01, 4) * 255;
             /*             simulArray[x][y].color.g = GetRandomValue(0, 255);
                         simulArray[x][y].color.b = GetRandomValue(0, 255);  */
         }
@@ -119,16 +122,14 @@ int main(void)
         // Блок самой симуляции
         SEED = GetRandomValue(0, 255);
 
-        for (int x = 0; x < WWIDTH; x++)
+        for (int i = 0; i < WWIDTH * WHEIGHT; i++)
         {
-            for (int y = 0; y < WHEIGHT; y++)
-            {
-                simulArray[x][y].color.g = perlin2d(x, y, 0.01, 4) * 255;
-                /*                 simulArray[x][y].color.r = GetRandomValue(0, 255);
-                                simulArray[x][y].color.g = GetRandomValue(0, 255);
-                                simulArray[x][y].color.b = GetRandomValue(0, 255); */
-                DrawPixel(simulArray[x][y].x, simulArray[x][y].y, simulArray[x][y].color);
-            }
+
+            simulArray.points[i].color.g = perlin2d(simulArray.points[i].x, simulArray.points[i].y, 0.01, 4) * 255;
+            /*                 simulArray[x][y].color.r = GetRandomValue(0, 255);
+                            simulArray[x][y].color.g = GetRandomValue(0, 255);
+                            simulArray[x][y].color.b = GetRandomValue(0, 255); */
+            DrawPixel(simulArray.points[i].x, simulArray.points[i].y, simulArray.points[i].color);
         }
 
         EndDrawing();
@@ -137,13 +138,17 @@ int main(void)
     CloseWindow();
 }
 
-void breakApartMass(struct DiscretePoint *base[], struct DiscretePoint *alpha[], struct DiscretePoint *beta[])
+void breakApartMass(struct Plita base, struct Plita alpha, struct Plita beta)
 {
-    for (int x = 0; x < WWIDTH; x++)
+    int middle = WWIDTH / 2;
+    int alphapoints = 0;
+    int betapoints = 0;
+
+    for (int i = 0; i < WWIDTH * WHEIGHT; i++)
     {
-        for (int y = 0; y < WHEIGHT; y++)
-        {
-            // base[x][y].color =
-        }
+        if (base.points[i].x > middle)
+            alpha.points[alphapoints++].color = base.points[i].color;
+        else
+            beta.points[betapoints++].color = base.points[i].color;
     }
 }
