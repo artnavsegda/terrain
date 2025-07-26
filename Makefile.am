@@ -1,0 +1,3 @@
+SUBDIRS = src
+CFLAGS += $(RAYLIB_CFLAGS) -std=gnu99
+LDADD = $(RAYLIB_LIBS)
